@@ -1,0 +1,32 @@
+{
+  "name": "tessera",
+  "version": "1.0.0",
+  "description": "Offline No Man's Sky Tessera pipeline : extract, geography, facts, beats, seed. Zero dependencies, zero network.",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "had.sh",
+  "homepage": "https://glyphs.had.sh/",
+  "bin": {
+    "tessera": "bin/tessera.js"
+  },
+  "exports": {
+    ".": "./lib/pipeline.js",
+    "./seed": "./lib/seed.js",
+    "./geo": "./lib/geo.js",
+    "./beats": "./lib/beats.js",
+    "./report": "./lib/report.js",
+    "./extract": "./lib/extract.js",
+    "./mapping": "./lib/mapping.json.js",
+    "./limits": "./lib/limits.js"
+  },
+  "scripts": {
+    "test": "node test/selftest.js",
+    "check": "sha256sum -c MANIFEST.sha256",
+    "serve": "node bin/tessera.js serve"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "private": false
+}

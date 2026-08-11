@@ -1,0 +1,187 @@
+<!-- Author: had.sh -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<title>tessera: offline pipeline</title>
+<link rel="stylesheet" href="tessera.css">
+</head>
+<body data-csrf-token="offline">
+<header class="banner">
+  <h1>tessera: offline pipeline</h1>
+  <p class="privacy">Nothing is sent anywhere. All processing happens in your browser.
+  Your save files never leave this machine.</p>
+  <p class="heavy-notice">Heavy local processing: a save can weigh several tens of MB
+  once decompressed. Expect a few seconds on recent PC or Mac; the page remains
+  usable while computing (runs in the background).</p>
+  <p class="offline-notice">This is the vendored copy of the recipe, served from
+  <code>127.0.0.1</code> by <code>tessera serve</code>. It runs the same code as the
+  site. There is no ingestion endpoint here: if you tick "Share the geography"
+  or "Add to the public mosaic" and continue, the upload is attempted and
+  answered with an explicit 501, which is visible in the network tab and in the
+  status line under Payload A for the geography, under the seed for the mosaic
+  tile. Those two are the only calls this page makes.</p>
+</header>
+
+<main>
+  <section class="panel" id="input-panel">
+    <h2>1. Save file</h2>
+    <p>Select your character's save: a single <code>saveN.hg</code> file
+    (one slot = one character; <code>mf_*</code> manifests are rejected).</p>
+    <!-- The site hides this input behind a glass "Choose save file" button
+         wired by assets/js/pages/story-upload.js, which is page chrome and
+         not part of the recipe: it lives outside lib/ and `tessera serve`
+         serves lib/ and nothing else. Here the native input is shown as is.
+         That is the one markup difference from the site page, and it is
+         cosmetic: app.js reads #file-input either way. -->
+    <input type="file" id="file-input" accept=".hg">
+    <button id="extract-btn" disabled>Extract</button>
+    <!-- Phase feedback in plain words, for the wait the log alone does not
+         explain. The wording lives here in the page and app.js only picks
+         which data-phase-* to show: same rule as the button labels below. -->
+    <p id="phase-status" class="status" aria-live="polite"
+       data-phase-reading="Reading your save, this is the long part."
+       data-phase-building="Piecing your journey together."
+       data-phase-packing="Packing your story."
+       data-phase-done="Done."
+       data-phase-failed="Something went wrong. The log says what."></p>
+  </section>
+
+  <section class="panel" id="log-panel">
+    <h2>Log</h2>
+    <pre id="log" class="log" aria-live="polite"></pre>
+  </section>
+
+  <section class="panel result hidden" id="scan-panel">
+    <h2>2. Scan &amp; sharing choice</h2>
+    <p id="scan-summary" class="status"></p>
+    <div class="panel-inset">
+      <label class="checkbox-label">
+        <input type="checkbox" id="consent-geo">
+        <span><span id="consent-geo-label" data-label="Share the geography of {count} systems">Share the geography</span><span class="hint">coordinates added to the public spatial corpus</span></span>
+      </label>
+    </div>
+    <div class="panel-inset">
+      <label class="checkbox-label">
+        <input type="checkbox" id="consent-mosaic">
+        <span>Add to the public mosaic<span class="hint">makes this story eligible to appear in the public gallery. The choice travels inside the seed itself, and the seed is not signed: anyone who gets hold of your seed can set that bit too</span></span>
+      </label>
+    </div>
+    <!-- The button names what pressing it does, rewritten by app.js from the
+         two checkboxes above (data-label-*, no inline handler, CSP hard).
+         Continue IS the send trigger: there is no second confirmation, so the
+         label is the last honest moment before the geography leaves. -->
+    <button id="continue-btn" type="button"
+            data-label-none="Continue"
+            data-label-geo="Send my geography, then continue"
+            data-label-mosaic="Continue and allow the public mosaic"
+            data-label-both="Send my geography, allow the public mosaic, continue">Continue</button>
+  </section>
+
+  <section class="panel result hidden" id="payload-a-panel">
+    <h2>Payload A: geography (corpus)</h2>
+    <p>Systems, planets, black hole routes (with exit candidates). The only
+    pseudo present is the <code>credit</code> of the first discoverer in-game.
+    Sent as soon as you continued with sharing checked - shown here for
+    transparency, not for a second confirmation.</p>
+    <p id="payload-a-status" class="status"></p>
+    <div class="actions">
+      <button id="copy-a">Copy</button>
+      <a id="download-a" download="payload-a-post.json">Download (POST)</a>
+      <a id="download-a-readable" download="payload-a-geo.json">Readable JSON</a>
+    </div>
+    <pre id="payload-a" class="output"></pre>
+  </section>
+
+  <section class="panel result hidden" id="review-panel">
+    <h2>3. Review your story</h2>
+    <p>Names you gave things in-game are listed below: keep, edit, or remove
+    each one before it goes into the seed. Everything else can be included
+    or excluded too, nothing is forced in.</p>
+    <ul id="review-list" class="beats"></ul>
+    <button id="confirm-btn" type="button">Confirm and generate seed</button>
+  </section>
+
+  <section class="panel result hidden" id="payload-b-panel">
+    <h2>4. Payload B: story graph seed</h2>
+    <p>Anonymized beats (no third-party pseudos, protagonist becomes
+    <code>you</code>), encoded in <code>v1.base64url</code> (binary format).</p>
+    <div class="actions">
+      <button id="copy-b">Copy</button>
+      <a id="download-b" download="payload-b-seed.txt">Download</a>
+      <a id="read-story-link" target="_blank" rel="noopener noreferrer">Read your story</a>
+    </div>
+    <pre id="payload-b" class="output seed"></pre>
+    <!-- Two containers, because the site page composes a card from the bare
+         code and shows that instead. Here both are present so the ids match
+         app.js either way: whichever one it fills is the one you see. -->
+    <div id="seed-qr-raw" class="qr-container"></div>
+    <div id="seed-qr" class="qr-container"></div>
+    <p><a id="seed-url" target="_blank" rel="noopener noreferrer"></a></p>
+    <!-- The second of the two opt-in sends, written here for the same reason
+         the site writes it under its seed: submitting the story to the public
+         wall is the one thing that leaves the browser after the seed exists,
+         so it is said where the seed is shown, and it is said whether it
+         worked or not. Offline it never works, and the 501 lands here. -->
+    <p id="mosaic-status" class="status"></p>
+    <h3>Seed decompressed (JSON)</h3>
+    <pre id="seed-decompressed" class="output seed seed-json"></pre>
+  </section>
+
+  <!-- The destroy key, on screen and not only on the printed sheet. It is the
+       one output of this whole pipeline that cannot be recomputed: the seed
+       carries its hash, nothing carries the key. Blurred until clicked, since
+       this page is the one people screenshot to show the pipeline running. -->
+  <section class="panel result hidden" id="destroy-key-panel">
+    <h2>Your destroy key</h2>
+    <p>Drawn locally, 120 bits, shown once and stored nowhere. Typing it on the
+    site's takedown page removes the story: it is the only way, it needs no
+    account, and nobody can reissue it. Lose it and the story stays up.</p>
+    <button type="button" id="destroy-key-reveal" class="key-reveal"
+            aria-expanded="false" aria-controls="destroy-key-value">
+      <code id="destroy-key-value" class="key-value"></code>
+      <span id="destroy-key-hint" class="key-hint">Click to reveal</span>
+    </button>
+    <div class="actions">
+      <button id="copy-destroy-key">Copy the key</button>
+    </div>
+  </section>
+
+  <section class="panel result hidden" id="ticket-panel">
+    <h2>Receipt</h2>
+    <p>Your fingerprint, extraction summary, seed and a copy of the
+    geographic data for this run only. Nothing is stored: nothing survives
+    closing this tab unless you download the JSON or print the sheet below
+    (browser "save as PDF"). Keep whichever copy you want, or none.</p>
+    <div class="actions">
+      <a id="download-ticket" download="save-story-ticket.json">Download receipt (JSON)</a>
+      <button id="print-receipt">Print / save as PDF</button>
+    </div>
+    <pre id="ticket" class="output"></pre>
+  </section>
+</main>
+
+<section id="print-sheet">
+  <h1>save-story receipt</h1>
+  <p>File: <span id="print-file"></span></p>
+  <p>Generated: <span id="print-generated"></span></p>
+  <p>SHA-256: <span id="print-sha"></span></p>
+  <ul id="print-summary"></ul>
+  <h2>Seed</h2>
+  <pre id="print-seed"></pre>
+  <div id="print-qr"></div>
+  <h2>Your destroy key</h2>
+  <p>Type this on the takedown page to remove your story. It is the only way, it works without an
+  account, and it cannot be recovered: this sheet is the copy.</p>
+  <pre id="print-destroy-key"></pre>
+  <h2>Geography (Payload A, readable)</h2>
+  <pre id="print-geo"></pre>
+</section>
+
+<script src="/lib/qrcode.vendor.js"></script>
+<script type="module" src="/lib/app.js"></script>
+</body>
+</html>

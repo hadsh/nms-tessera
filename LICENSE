@@ -1,0 +1,111 @@
+tessera: provisional restrictive license
+Copyright (c) 2026 had.sh (https://glyphs.had.sh/). All rights reserved.
+
+This license is deliberately narrow and deliberately temporary. **The author has
+not yet chosen the terms under which this work will be released.** Until that
+decision is made and this file is replaced, everything not explicitly permitted
+below is forbidden.
+
+
+1. SCOPE
+
+This license covers every file in this directory and its subdirectories,
+except those listed in section 5, which carry their own terms.
+
+"The Work" means those files. "You" means the person or organisation in
+possession of a copy.
+
+
+2. WHAT YOU MAY DO
+
+You are granted a personal, non-exclusive, non-transferable, revocable
+permission to:
+
+  a. read the source code, for any purpose, including review, criticism,
+     security analysis and verification of the claims made in its
+     documentation;
+
+  b. run the Work locally, on your own machine, on your own files, including
+     your own game saves;
+
+  c. keep the outputs the Work produces from your own data.
+
+
+3. WHAT YOU MAY NOT DO
+
+Without prior written permission from the author, you may not:
+
+  a. redistribute, publish, mirror, host, package, bundle or otherwise make
+     the Work or any part of it available to anyone else, in source or in
+     any other form;
+
+  b. modify the Work, or create derivative works, ports, translations or
+     reimplementations derived from it;
+
+  c. use the Work, or any part of it, in any product, service, site or
+     application, whether or not money changes hands;
+
+  d. use the Work for any commercial purpose;
+
+  e. sublicense, sell, rent, lease or transfer any right in the Work;
+
+  f. use the Work, in whole or in part, as training data or as input for
+     the development of any machine learning model or dataset;
+
+  g. remove, alter or obscure any copyright notice, authorship line or
+     licensing statement it contains.
+
+Reading the code in order to write your own independent implementation of the
+underlying ideas is not granted by this license and is not addressed by it.
+Ask first.
+
+
+4. YOUR OWN DATA AND YOUR OWN OUTPUTS
+
+Nothing in this license claims any right over your game saves, over the seeds,
+payloads, receipts, reports or texts the Work produces from them, or over
+anything you write yourself. Those are yours. Section 3 restricts the Work,
+never its output.
+
+
+5. THIRD-PARTY COMPONENTS
+
+lib/qrcode.vendor.js is not covered by this license. It is davidshimjs/qrcodejs
+1.0.0, encoder by Kazuhiko Arase, distributed under the MIT license, vendored
+here unmodified. Its own terms apply to it, and nothing above purports to
+restrict rights granted by that license.
+
+
+6. NO AFFILIATION
+
+No Man's Sky is a trademark of Hello Games. This Work is an unofficial,
+independent, non-commercial fan project. It is not affiliated with, endorsed by
+or connected to Hello Games in any way.
+
+
+7. NO WARRANTY
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK OR THE
+USE OR OTHER DEALINGS IN THE WORK.
+
+
+8. TERMINATION
+
+Any use outside section 2 terminates this permission immediately and
+automatically.
+
+
+9. THIS IS PROVISIONAL
+
+The restrictions above exist because no decision has been made yet, not because
+a decision has been made against openness. The Work is published in source form
+precisely so that it can be read and checked, and the intent is to settle on
+proper terms once the format and the project have stopped moving.
+
+If you want to do something this license forbids, ask: https://glyphs.had.sh/
+A permission granted in writing overrides section 3 for the specific use it
+names.

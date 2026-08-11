@@ -1,0 +1,6 @@
+{
+  "_comment": "Public NMS geographical data, as visible to any player in-game. Pseudonymous, not anonymous: each system carries the first discoverer's in-game username (credit, which may not be the depositor's), public information anyone can read by visiting. No other personal data, and no address the save merely visited: only in-game discovery records. Discovery dates are cut to the month, every free text field is length-capped. Positional binary (geo-v1), deflate-raw + base64url in data.",
+  "schema": "geo-v1",
+  "encoding": "deflate-raw+base64url",
+  "data": "q2ZgZlwUMOGfPAMDs19mCrdrRUFOflFqkX9eKgMTi2tKah5D3cSTmz4z8DMwMHIF5-fkK4TnF-WksMr46VYxMNg_mtFMCTI43EkaZGUQsNu88DgDAwOyU4UVo2z75zBwuiUWKQRn5BelcueXZKQWFeQkVqYWCQMA"
+}

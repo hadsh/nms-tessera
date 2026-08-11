@@ -1,0 +1,17 @@
+# Nothing here needs installing, but a stray npm command should not leak in.
+node_modules/
+
+# Files the documentation asks you to produce from your own save. They hold
+# your own data: your seed, your geography payload, your report. Ignored so a
+# fork cannot commit them by accident.
+*.seed
+my-geo.json
+readable.json
+post.json
+
+# Except the synthetic fixture, which is part of the package and is checked by
+# selftest. It contains no real save and no real player.
+!fixtures/*.seed
+
+# Saves themselves, in case one gets copied here to be tested.
+*.hg

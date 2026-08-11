@@ -1,0 +1,176 @@
+[
+  {
+    "type": "first_system",
+    "ts": null,
+    "seed_facts": {
+      "sysaddress": "05E08961E78",
+      "planet_index": 3,
+      "start_year": 2016
+    }
+  },
+  {
+    "type": "community_phase",
+    "ts": null,
+    "seed_facts": {
+      "distinct_users": 4096
+    }
+  },
+  {
+    "type": "center_journey",
+    "ts": "2018-03-15",
+    "seed_facts": {
+      "closest_system": "0C7A1B33E10",
+      "blackhole_warps": 128
+    }
+  },
+  {
+    "type": "intergalactic_jump",
+    "ts": "2019-11-15",
+    "seed_facts": {
+      "to_galaxy": 15
+    }
+  },
+  {
+    "type": "first_naming",
+    "ts": "2016-08-15",
+    "seed_facts": {
+      "sysaddress": "01FFE9050A2",
+      "system_name": "Genesis Prime",
+      "planet_name": "Alpha Nova"
+    }
+  },
+  {
+    "type": "journey_ends",
+    "ts": "2026-07-15",
+    "seed_facts": {
+      "total_systems": 1907,
+      "total_regions": 309,
+      "total_galaxies": 4,
+      "total_events": 6451,
+      "active_days": 2318,
+      "total_deaths": 999,
+      "systems_discovered": 1899,
+      "planets_discovered": 5124,
+      "dist_fly_class": 7,
+      "dist_walked_class": 5,
+      "sentinel_kills": 3400
+    }
+  },
+  {
+    "type": "favorite_base",
+    "ts": "2022-09-15",
+    "seed_facts": {
+      "sysaddress": "03D1A7C4B90",
+      "name": "Ragnar",
+      "bases_built": 24
+    }
+  },
+  {
+    "type": "freighter_named",
+    "ts": null,
+    "seed_facts": {
+      "name": "Leviathan Eternel",
+      "frigates": 30,
+      "ships_owned": 12,
+      "ships_bought": 9
+    }
+  },
+  {
+    "type": "atlas_encounter",
+    "ts": "2020-04-15",
+    "seed_facts": {
+      "sysaddress": "07A0C13F5D1",
+      "galaxy": 0,
+      "system_name": "Sanctuaire Atlas"
+    }
+  },
+  {
+    "type": "purple_systems",
+    "ts": "2021-06-15",
+    "seed_facts": {
+      "first_system": {
+        "sysaddress": "0F3B2C9917E",
+        "galaxy": 15
+      }
+    }
+  },
+  {
+    "type": "total_playtime",
+    "ts": null,
+    "seed_facts": {
+      "seconds": 8000000
+    }
+  },
+  {
+    "type": "settlements",
+    "ts": "2024-05-15",
+    "seed_facts": {
+      "total_population": 1337,
+      "names": [
+        "Nova Terra Capital"
+      ],
+      "sysaddress": "09C8F3D5A21"
+    }
+  },
+  {
+    "type": "final_session",
+    "ts": "2026-07-15",
+    "seed_facts": {
+      "events_that_day": 61
+    }
+  },
+  {
+    "type": "first_pet",
+    "ts": "2023-02-15",
+    "seed_facts": {
+      "sysaddress": "0AB4E2210F5",
+      "creature_id": "CAT",
+      "name": "Citadelle Des Conf",
+      "pets_owned": 7,
+      "creatures_fed": 191,
+      "creatures_discovered": 447
+    }
+  },
+  {
+    "type": "multitool_named",
+    "ts": null,
+    "seed_facts": {
+      "name": "Fleau D Etoiles",
+      "is_large": true
+    }
+  },
+  {
+    "type": "main_story_arc",
+    "ts": null,
+    "seed_facts": {
+      "a3_choice_reached": true,
+      "act1_complete": true,
+      "act2_complete": true,
+      "act3_complete": true,
+      "nexus_complete": true,
+      "remembrance_reached": true,
+      "story_init_reached": true,
+      "epilogue_reached": "stay",
+      "artemis_choice": "dead"
+    }
+  },
+  {
+    "type": "expedition_lore",
+    "ts": null,
+    "seed_facts": {
+      "atlas_lore_complete": true,
+      "bio_frig_complete": true,
+      "bio_ship_complete": true,
+      "farmer_complete": true,
+      "overseer_complete": true,
+      "pirates_complete": true,
+      "scientist_complete": true,
+      "sentinels_complete": true,
+      "settlement_arc_complete": true,
+      "waterstory_complete": true,
+      "weapguy_complete": true,
+      "pirates_killed": 777,
+      "flora_discovered": 2048
+    }
+  }
+]

@@ -1,0 +1,156 @@
+/* Author: had.sh
+   Deliberately plain: this page is an audit surface, not a showcase. The site
+   design system is not vendored here, so nothing pretends to be
+   the real thing. Only what the markup and app.js actually need. */
+
+:root {
+    color-scheme: light dark;
+    --fg: #1b1b1f;
+    --bg: #fbfbfd;
+    --muted: #5b5b66;
+    --line: #d5d5de;
+    --panel: #ffffff;
+    --code-bg: #f2f2f6;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fg: #e6e6ea;
+        --bg: #16161a;
+        --muted: #9a9aa6;
+        --line: #303038;
+        --panel: #1d1d22;
+        --code-bg: #24242b;
+    }
+}
+
+body {
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    max-width: 62rem;
+    font: 16px/1.55 system-ui, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+}
+
+h1 { font-size: 1.4rem; margin: 0 0 .4rem; }
+h2 { font-size: 1.05rem; margin: 0 0 .6rem; }
+h3 { font-size: .95rem; margin: 1.2rem 0 .4rem; color: var(--muted); }
+
+.banner p { margin: .3rem 0; color: var(--muted); max-width: 60ch; }
+.offline-notice { border-left: 3px solid var(--line); padding-left: .7rem; }
+
+.panel {
+    margin: 1.2rem 0;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+}
+
+.panel p { margin: .3rem 0 .8rem; color: var(--muted); }
+
+/* app.js toggles this class to reveal each result panel. */
+.hidden { display: none; }
+
+button, input[type="file"] { font: inherit; }
+
+button {
+    padding: .35rem .8rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--code-bg);
+    color: var(--fg);
+    cursor: pointer;
+}
+
+button:disabled { opacity: .5; cursor: default; }
+
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .6rem; }
+.actions a { color: inherit; }
+
+code, pre { font-family: ui-monospace, monospace; font-size: .85rem; }
+code { background: var(--code-bg); padding: .1em .3em; border-radius: 3px; }
+
+pre.output, pre.log {
+    margin: 0;
+    padding: .7rem;
+    max-height: 22rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--code-bg);
+    border-radius: 4px;
+}
+
+pre.log { min-height: 4rem; }
+pre.seed { word-break: break-all; }
+
+.send-status { min-height: 1.2em; }
+
+.beats { margin: 0; padding-left: 1.1rem; }
+.beats li { margin: .2rem 0; }
+.beat-meta { color: var(--muted); list-style: none; margin-left: -1.1rem; }
+
+/* The encoder draws no quiet zone: app.js delegates it to this padding. A QR
+   without its 4 modules of margin is unreadable, so the plate stays white and
+   padded even in dark mode, where the page background would otherwise touch
+   the code. 28px is just over 4 modules at the worst density we emit (a v13
+   code, 69 modules across 440px). */
+.qr-container {
+    display: inline-block;
+    margin: .8rem 0;
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 4px;
+    line-height: 0;
+}
+.qr-container img, .qr-container canvas, .qr-container svg { max-width: 100%; height: auto; }
+
+/* The destroy key: the only secret this page produces, on a page whose whole
+   purpose is to be watched, recorded and screenshotted while it runs. Blurred
+   until clicked, and unselectable while blurred so a drag cannot lift it out.
+   Courtesy, not a boundary: the key is in the DOM either way, and it belongs
+   to whoever ran the pipeline. */
+.key-reveal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    padding: 1.2rem .8rem;
+    text-align: center;
+}
+
+.key-value {
+    font-size: 1.15rem;
+    letter-spacing: .12em;
+    word-break: break-all;
+    background: none;
+    padding: 0;
+    filter: blur(8px);
+    user-select: none;
+}
+
+.key-reveal[aria-expanded="true"] { cursor: default; }
+.key-reveal[aria-expanded="true"] .key-value { filter: none; user-select: text; }
+
+.key-hint { font-size: .85rem; color: var(--muted); }
+
+/* Print sheet: built by app.js (fillPrintSheet), invisible on screen, the
+   only thing left standing under @media print. This is the "keep a copy"
+   path that replaced IndexedDB - nothing here persists on its own, the
+   player prints or saves as PDF if they want to keep it. */
+#print-sheet { display: none; }
+
+@media print {
+    body > *:not(#print-sheet) { display: none; }
+    #print-sheet { display: block; margin: 0; padding: 0; max-width: none; }
+    #print-sheet pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: .75rem;
+    }
+    #print-sheet #print-qr img,
+    #print-sheet #print-qr canvas { width: 160px; height: 160px; }
+}
