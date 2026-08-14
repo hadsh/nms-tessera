@@ -52,6 +52,12 @@ Without prior written permission from the author, you may not:
   f. use the Work, in whole or in part, as training data or as input for
      the development of any machine learning model or dataset;
 
+     This does not restrict passing the Work as context to an existing
+     model for the purposes already granted under section 2.a (review,
+     criticism, security analysis, verification of its documentation's
+     claims) - including by an AI agent acting on your behalf. Inference is
+     not development, and reading is not training.
+
   g. remove, alter or obscure any copyright notice, authorship line or
      licensing statement it contains.
 

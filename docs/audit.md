@@ -68,23 +68,31 @@ ships with the copy. If both were altered together, every check in this package
 would still pass.
 
 The way out is to fetch the site's own files and compare. The page at
-`/mosaic/create` loads `/assets/js/story/app.js` as a module, and that module imports
-the rest of the pipeline by relative path, so every file in `lib/` is served
-from the same directory. Read the page source, follow the imports, and take
-the files from there rather than from anyone's word:
+`/mosaic/create` loads `/assets/js/story/app.min.js` as a module, and that
+module imports the rest of the pipeline by relative path, so every `.min.js`
+file in `lib/` is served from the same directory. Read the page source,
+follow the imports, and take the files from there rather than from anyone's
+word - the `.min.js` build, not the readable source, is what the browser
+actually runs:
 
 ```bash
 BASE=https://glyphs.had.sh/assets/js/story
 mkdir -p /tmp/from-site && cd /tmp/from-site
-for f in limits.js compress.js lz4-block.js mapping.json.js extract.js \
-         geo.js report.js beats.js seed.js pipeline.js worker.js \
-         receipt.js app.js qrcode.vendor.js; do
+for f in limits.min.js compress.min.js lz4-block.min.js mapping.json.min.js \
+         extract.min.js geo.min.js report.min.js beats.min.js seed.min.js \
+         pipeline.min.js worker.min.js receipt.min.js app.min.js \
+         qrcode.vendor.min.js; do
     curl -fsS "$BASE/$f" -o "$f" || echo "MISSING $f"
 done
 sha256sum *.js | sort > /tmp/site.sha
-( cd /path/to/tessera/lib && sha256sum *.js | sort ) > /tmp/pkg.sha
+( cd /path/to/tessera/lib && sha256sum *.min.js | sort ) > /tmp/pkg.sha
 diff /tmp/site.sha /tmp/pkg.sha && echo "identical"
 ```
+
+The readable sources (`app.js` and the rest, no `.min`) ship in `lib/` too,
+and are still worth reading - they are what `.min.js` is built from, byte
+for byte, `--minify-whitespace` only, no renamed identifiers - but they are
+not the file the diff above needs, since they are not what the site serves.
 
 A `diff` with no output means the code you just audited is the code running on
 the site. That statement rests on curl, sha256sum and your own eyes, and on

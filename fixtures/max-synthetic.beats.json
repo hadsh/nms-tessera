@@ -51,8 +51,8 @@
       "total_deaths": 999,
       "systems_discovered": 1899,
       "planets_discovered": 5124,
-      "dist_fly_class": 7,
-      "dist_walked_class": 5,
+      "dist_fly_class": 4,
+      "dist_walked_class": 4,
       "sentinel_kills": 3400
     }
   },

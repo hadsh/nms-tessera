@@ -87,7 +87,7 @@ export function maxSyntheticBeats() {
         { type: 'journey_ends', ts: '2026-07-20', facts: {
             total_systems: 1907, total_regions: 309, total_galaxies: 4, total_events: 6451,
             active_days: 2318, total_deaths: 1200, systems_discovered: 1899,
-            planets_discovered: 5124, dist_fly_class: 7, dist_walked_class: 5,
+            planets_discovered: 5124, dist_fly_class: 4, dist_walked_class: 4,
             sentinel_kills: 3400 } },
     ];
 }
@@ -578,17 +578,34 @@ export async function runSelftest({ log = () => {}, updateFixtures = false } = {
                 fn: 'sendGeoPayload',
                 // Brace-matched from this opener: the branch that only runs
                 // when the geography box was ticked before the button.
-                branch: 'if (geoResult) {',
+                // Whitespace-tolerant: this pipeline is minified with
+                // --minify-whitespace only, never --minify-identifiers or
+                // --minify-syntax (the latter turns a brace-less `if` into a
+                // ternary), precisely so this regex still finds the same
+                // branch, as a real block, in app.min.js.
+                branch: /if\s*\(geoResult\)\s*\{/,
                 consent: /consentGeo\.checked/,
             },
             {
                 what: 'mosaic tile',
                 endpoint: '/mosaic/publish',
                 fn: 'sendMosaicTile',
-                branch: 'if (mosaicOptIn) {',
+                branch: /if\s*\(mosaicOptIn\)\s*\{/,
                 consent: /consentMosaic\.checked/,
             },
         ];
+
+        // Matching closing brace for the '{' at src[openIdx]. Used instead of
+        // a "\n}" sentinel so function-body and branch extraction survive
+        // whitespace minification, where a body can be a single line.
+        function braceBlockEnd(src, openIdx) {
+            let depth = 0;
+            for (let i = openIdx; i < src.length; i++) {
+                if (src[i] === '{') depth++;
+                else if (src[i] === '}' && --depth === 0) return i;
+            }
+            return -1;
+        }
 
         const NET = /\b(fetch|XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon)\s*\(/g;
         const offenders = [];
@@ -608,43 +625,52 @@ export async function runSelftest({ log = () => {}, updateFixtures = false } = {
         // Counting the calls was never the interesting half. Assert the TRIGGER, not
         // the tally. Each send must sit behind a consent read, and it must be
         // reachable from exactly one place.
-        const appSrc = fs.readFileSync(path.join(LIB_DIR, 'app.js'), 'utf8');
-        check('app.js holds exactly the declared sends, no more',
-            (appSrc.match(/fetch\(/g) || []).length === SENDS.length,
-            `${(appSrc.match(/fetch\(/g) || []).length} fetch(), ${SENDS.length} declared`);
+        //
+        // Both app.js and app.min.js are checked, not app.js alone: the site
+        // serves app.min.js, so a posture proven only on app.js would prove
+        // nothing about the bytes a visitor actually runs. This only works
+        // because js/story's minify pass never mangles identifiers - see the
+        // SENDS.branch comment above.
+        const APP_FILES = ['app.js', 'app.min.js'].filter((f) =>
+            fs.existsSync(path.join(LIB_DIR, f)));
+        check('both app.js and app.min.js are present to check', APP_FILES.length === 2,
+            APP_FILES.join(', '));
 
-        for (const send of SENDS) {
-            const sendFn = appSrc.match(
-                new RegExp(`async function ${send.fn}[\\s\\S]*?\\n}`));
-            check(`the ${send.what} fetch lives inside ${send.fn} and nowhere else`,
-                !!sendFn && new RegExp(`fetch\\(['"]${send.endpoint}['"]`).test(sendFn[0]));
+        for (const appFile of APP_FILES) {
+            const appSrc = fs.readFileSync(path.join(LIB_DIR, appFile), 'utf8');
+            check(`${appFile} holds exactly the declared sends, no more`,
+                (appSrc.match(/fetch\(/g) || []).length === SENDS.length,
+                `${(appSrc.match(/fetch\(/g) || []).length} fetch(), ${SENDS.length} declared`);
 
-            const callSites = [...appSrc.matchAll(
-                new RegExp(`(?<!function )(?<!\\w)${send.fn}\\(`, 'g'))]
-                .filter((m) => !appSrc.slice(0, m.index).endsWith('async function '));
-            check(`${send.fn} has exactly one call site`, callSites.length === 1,
-                `${callSites.length} found`);
+            for (const send of SENDS) {
+                const fnStart = appSrc.search(new RegExp(`async function ${send.fn}\\(`));
+                const braceOpen = fnStart === -1 ? -1 : appSrc.indexOf('{', fnStart);
+                const braceEnd = braceOpen === -1 ? -1 : braceBlockEnd(appSrc, braceOpen);
+                const sendFnBody = braceEnd === -1 ? null : appSrc.slice(fnStart, braceEnd + 1);
+                check(`[${appFile}] the ${send.what} fetch lives inside ${send.fn} and nowhere else`,
+                    !!sendFnBody && new RegExp(`fetch\\(['"]${send.endpoint}['"]`).test(sendFnBody));
 
-            const open = appSrc.indexOf(send.branch);
-            let end = -1;
-            if (open !== -1) {
-                let depth = 0;
-                for (let i = appSrc.indexOf('{', open); i < appSrc.length; i++) {
-                    if (appSrc[i] === '{') depth++;
-                    else if (appSrc[i] === '}' && --depth === 0) { end = i; break; }
-                }
+                const callSites = [...appSrc.matchAll(
+                    new RegExp(`(?<!function )(?<!\\w)${send.fn}\\(`, 'g'))]
+                    .filter((m) => !appSrc.slice(0, m.index).endsWith('async function '));
+                check(`[${appFile}] ${send.fn} has exactly one call site`, callSites.length === 1,
+                    `${callSites.length} found`);
+
+                const branchMatch = appSrc.match(send.branch);
+                const open = branchMatch ? appSrc.indexOf('{', branchMatch.index) : -1;
+                const end = open === -1 ? -1 : braceBlockEnd(appSrc, open);
+                const inside = callSites.length === 1 && open !== -1 && end !== -1 &&
+                    callSites[0].index > open && callSites[0].index < end;
+                check(`[${appFile}] the ${send.what} send sits inside its consent branch, not beside it`,
+                    inside && send.consent.test(appSrc));
             }
-            const inside = callSites.length === 1 && open !== -1 && end !== -1 &&
-                callSites[0].index > open && callSites[0].index < end;
-            check(`the ${send.what} send sits inside its consent branch, not beside it`,
-                inside && send.consent.test(appSrc));
+            // The label on the primary button has to name what pressing it does,
+            // since pressing it IS the send. A page that omits the data-label-*
+            // attributes falls back to the button's own text, which is why the
+            // check is on the page and not only on the script.
+            check(`[${appFile}] the primary button reads its labels from the page, not from code`,
+                /dataset\.labelGeo/.test(appSrc) && !/['"]Send my geography/.test(appSrc));
         }
-        // The label on the primary button has to name what pressing it does,
-        // since pressing it IS the send. A page that omits the data-label-*
-        // attributes falls back to the button's own text, which is why the
-        // check is on the page and not only on app.js.
-        check('the primary button reads its labels from the page, not from code',
-            /dataset\.labelGeo/.test(appSrc) && !/['"]Send my geography/.test(appSrc));
 
         const evals = [];
         for (const f of fs.readdirSync(LIB_DIR).filter((n) => n.endsWith('.js'))) {

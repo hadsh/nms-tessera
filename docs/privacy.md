@@ -48,7 +48,7 @@ call site. That second half is the half that matters: the call count stayed at
 one through the change that made this document wrong.
 
 ```bash
-grep -rn "fetch(\|XMLHttpRequest\|sendBeacon\|WebSocket" lib/   # two hits
+grep -rn "fetch(\|XMLHttpRequest\|sendBeacon\|WebSocket" lib/   # 3 matching lines: 2 in app.js (one call per line), 1 in app.min.js (both calls squished onto its one line)
 node bin/tessera.js selftest                                    # asserts where they are
 ```
 
@@ -465,6 +465,10 @@ marketing.
 - **Geography can be correlated.** A set of system addresses and dates is
   distinctive. Contributing it, then publishing a seed covering the same
   journey, links the two. Both are opt-in, and they are opt-in separately.
+- **Geography, once shared, has no destroy key.** The seed's takedown
+  mechanism does not cover it: there is currently no way to withdraw a
+  contribution to the corpus, or the `credit` pseudonym inside it, once
+  submitted. Ask for a human at had.sh.
 - **Dates are dates.** Both payloads round timestamps to the month, which is
   coarse but still a timeline of when you played.
 - **Addresses are game coordinates, and they are public.** They describe places

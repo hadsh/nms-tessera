@@ -50,6 +50,16 @@ The magic bytes matched but the stream inside does not hold together. Usually a
 partial copy, sometimes a file mangled by a sync tool or an editor that
 rewrote it as text.
 
+**`LZ4: literal exceeds destination size`, `LZ4: match exceeds destination
+size`, `LZ4: truncated literal length`, `LZ4: truncated match length`,
+`LZ4: truncated match offset`, `LZ4: literal overruns source`, or
+`LZ4: offset before buffer start`.**
+
+Same family as the incoherent-chunk error above, one level deeper: the chunk
+header looked plausible but the compressed block inside it does not decode to
+what that header promised. A real save never produces this; it means the file
+was truncated, edited, or was never an NMS save to begin with.
+
 ## The pipeline runs but produces nothing
 
 **`no systems extracted`**
@@ -152,14 +162,33 @@ payload` or `seed: arc flags overrun payload`.**
 The seed is cut short. Copy it again, whole: a wrapped line in an email or a
 chat client eating the tail are the usual causes.
 
-**`seed: reserved header bit set` or `seed: trailing bytes after the last
-beat`.**
+**`seed: reserved header bit set`, `seed: trailing bytes after the last
+beat`, or `seed: non-minimal varint encoding`.**
 
 The seed is structurally valid but not in the one encoding the format allows.
-Either something appended bytes to it, or it was produced by a tool that fills
-the header's spare bits. Both are refused so that one story has exactly one
-seed string, see [seed-format.md](seed-format.md) "header bitmask". Re-generate
-the seed from the save rather than trying to repair the string.
+Either something appended bytes to it, padded a varint with a superfluous
+continuation byte, or it was produced by a tool that fills the header's spare
+bits. All three are refused so that one story has exactly one seed string, see
+[seed-format.md](seed-format.md) "header bitmask". Re-generate the seed from
+the save rather than trying to repair the string.
+
+**`seed: main_story_arc combined byte out of range`, `seed: galaxy index out
+of range`, `seed: address exceeds N hex digits`, `seed: month index out of
+range`, `seed: distance class out of range`, or `seed: creature index out of
+range`.**
+
+A field carries a value the real encoder never writes: a byte or a varint is
+valid on its own but outside the range the field actually has (9 combinations
+for the story arc byte, 0-255 for a galaxy, 0-4 for a distance bucket, and so
+on). A hand-edited or generated-by-something-else seed is the only way to
+reach this - a seed produced by this pipeline from a real save never trips it.
+
+**`seed: invalid utf-8 in string field`.**
+
+A name field decoded to bytes that are not valid UTF-8. Same cause as
+`base64url: invalid character` below: something outside the seed's own
+alphabet got into the string, usually a copy/paste through a tool that
+mangles encoding.
 
 **`base64url: invalid character` or `seed: invalid base64url`.**
 

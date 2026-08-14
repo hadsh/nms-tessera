@@ -332,7 +332,7 @@ README.
 sha256sum -c MANIFEST.sha256    # lib/ has not drifted since it was vendored
 node bin/tessera.js selftest    # format round-trips, no eval, no stray network call
 sha256sum -c MANIFEST.sha256    # same thing with your own tool
-grep -rn "fetch(\|XMLHttpRequest\|sendBeacon" lib/   # two hits, both in app.js
+grep -rn "fetch(\|XMLHttpRequest\|sendBeacon" lib/   # 3 matching lines: 2 in app.js (one call per line), 1 in app.min.js (both calls squished onto its one line)
 ```
 
 If you would rather have a machine read the fourteen modules for you,
