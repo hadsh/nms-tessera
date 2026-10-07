@@ -13,6 +13,17 @@ what happened between two copies.
 Format changes are called out as **BREAKING** when they invalidate seeds
 produced before them.
 
+## fix, 2026-10-07
+
+**geo-v1 default galaxy** The encoder picked the most frequent galaxy as
+`default_galaxy`, but a `0` in a galaxy slot means "the default" and is also
+Euclid's index. In a payload dominated by another galaxy, every Euclid system
+or route was written `0` and decoded into the dominant galaxy. `encodeGeoV1`
+now forces `default_galaxy` to `0` as soon as the payload holds any Euclid
+entry. Not breaking: the decoder is unchanged and every payload already
+produced decodes the same, the misfiled ones included (their bytes never held
+the right galaxy).
+
 ## fixes, 2026-08-14
 
 **Canonicity** A varint could carry a

@@ -83,7 +83,8 @@ attached) is not worth a byte of date at all.
 
 ```
 header
-  n  default_galaxy          the most frequent galaxy in the payload
+  n  default_galaxy          0 if any entry is in Euclid, else the most
+                              frequent galaxy in the payload
   n  n_systems
   n  n_blackhole_routes
 
@@ -123,6 +124,13 @@ follow the entry fields, unconditionally.
 becomes `default_galaxy` in the header, and everywhere else a `0` in the
 galaxy slot means "the default one". Most players never leave Euclid, so most
 payloads pay nothing for galaxies at all.
+
+One exception: Euclid's own index is `0`, so a `0` in the slot cannot mean
+both "the default" and "Euclid". As soon as the payload holds any Euclid
+entry (system or route), the encoder forces `default_galaxy` to `0`, which
+makes the two meanings coincide. Without that, a Euclid system in a payload
+dominated by another galaxy would be written `0` and read back into the
+dominant galaxy. The decoder never needed to change for this.
 
 ## 4. A complete payload, dissected
 
